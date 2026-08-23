@@ -1,0 +1,20 @@
+{
+  "name": "recovery-agent-backend",
+  "version": "1.0.0",
+  "description": "AI Revenue Recovery Agent - Razorpay Buildathon (Track 3)",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seedData.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0",
+    "razorpay": "^2.9.4",
+    "@anthropic-ai/sdk": "^0.27.0"
+  }
+}
