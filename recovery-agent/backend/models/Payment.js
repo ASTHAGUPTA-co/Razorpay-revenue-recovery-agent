@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
   {
-    // Razorpay-style identifiers (synthetic for demo, real if you wire live webhooks)
+    
     razorpayPaymentId: { type: String, required: true, unique: true },
     razorpayOrderId: { type: String },
 
@@ -10,12 +10,12 @@ const paymentSchema = new mongoose.Schema(
     customerEmail: { type: String },
     customerPhone: { type: String },
 
-    amount: { type: Number, required: true }, // in paise, like Razorpay
+    amount: { type: Number, required: true }, 
     currency: { type: String, default: "INR" },
 
-    // What Razorpay actually gives you on a failed payment
-    errorCode: { type: String, required: true }, // e.g. BAD_REQUEST_ERROR, GATEWAY_ERROR
-    errorReason: { type: String, required: true }, // e.g. payment_failed, insufficient_funds
+    
+    errorCode: { type: String, required: true }, 
+    errorReason: { type: String, required: true }, 
     errorDescription: { type: String },
 
     status: {
@@ -27,7 +27,7 @@ const paymentSchema = new mongoose.Schema(
     attempts: { type: Number, default: 0 },
     maxAttempts: { type: Number, default: 3 },
 
-    newPaymentLink: { type: String }, // filled in if we generate a retry link
+    newPaymentLink: { type: String }, 
   },
   { timestamps: true }
 );
