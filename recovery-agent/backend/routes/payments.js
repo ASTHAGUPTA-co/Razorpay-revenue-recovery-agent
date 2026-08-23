@@ -12,7 +12,6 @@ router.get("/", async (req, res) => {
   res.json(payments);
 });
 
-// GET /api/payments/:id - detail view, including its full audit trail
 router.get("/:id", async (req, res) => {
   const payment = await Payment.findById(req.params.id);
   if (!payment) return res.status(404).json({ error: "not found" });
@@ -20,21 +19,18 @@ router.get("/:id", async (req, res) => {
   res.json({ payment, logs });
 });
 
-// POST /api/payments/:id/process - run the agent on ONE payment
-// This is the core loop: diagnose -> gate -> act -> log
+
 router.post("/:id/process", async (req, res) => {
   const payment = await Payment.findById(req.params.id);
   if (!payment) return res.status(404).json({ error: "not found" });
 
-  // Stopping rule: never exceed maxAttempts. This is a guardrail, not a
-  // suggestion - it runs in code, not just in the prompt.
+ 
   if (payment.attempts >= payment.maxAttempts) {
     payment.status = "escalated";
     await payment.save();
     return res.json({ payment, note: "max attempts reached, auto-escalated" });
   }
 
-  // 1. Diagnose
   const diagnosis = await diagnosePayment(payment);
 
   const log = new RecoveryLog({
@@ -46,7 +42,7 @@ router.post("/:id/process", async (req, res) => {
     draftMessage: diagnosis.draft_message,
   });
 
-  // 2. Act, but ONLY within the bounded action set
+ 
   if (diagnosis.recommended_action === "retry_link") {
     const result = await createRetryPaymentLink(payment);
     if (result.success) {
@@ -64,9 +60,6 @@ router.post("/:id/process", async (req, res) => {
       log.outcome = "escalated";
     }
   } else if (diagnosis.recommended_action === "whatsapp_nudge") {
-    // Demo mode: we log the drafted message rather than actually sending
-    // WhatsApp (needs a business API + approval). Judges see the message,
-    // that's enough to prove the reasoning + drafting works.
     log.executedAction = "whatsapp_nudge_drafted";
     log.executionResult = "success";
     log.executionDetail = diagnosis.draft_message;
@@ -89,8 +82,7 @@ router.post("/:id/process", async (req, res) => {
   res.json({ payment, log });
 });
 
-// POST /api/payments/:id/mark-recovered - simulate the customer actually paying
-// (in a real system this would be a Razorpay webhook: payment.captured)
+
 router.post("/:id/mark-recovered", async (req, res) => {
   const payment = await Payment.findById(req.params.id);
   if (!payment) return res.status(404).json({ error: "not found" });
@@ -108,8 +100,7 @@ router.post("/:id/mark-recovered", async (req, res) => {
   res.json({ payment });
 });
 
-// POST /api/payments/process-batch - run the agent across every "failed" payment
-// This is what you'll click live in your demo video.
+
 router.post("/process-batch", async (req, res) => {
   const pending = await Payment.find({ status: "failed" });
   const results = [];
