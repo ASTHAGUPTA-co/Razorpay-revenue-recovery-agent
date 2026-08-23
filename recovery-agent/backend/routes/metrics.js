@@ -4,9 +4,6 @@ import RecoveryLog from "../models/RecoveryLog.js";
 
 const router = express.Router();
 
-// GET /api/metrics - the numbers that go on your pitch video.
-// This is deliberately honest: it counts escalations and no-action cases
-// as NOT recovered, so you can't accidentally inflate your recovery rate.
 router.get("/", async (req, res) => {
   const total = await Payment.countDocuments();
   const recovered = await Payment.countDocuments({ status: "recovered" });
@@ -20,8 +17,6 @@ router.get("/", async (req, res) => {
   const totalAttempted = await Payment.countDocuments({ status: { $ne: "failed" } });
   const recoveryRate = totalAttempted > 0 ? recovered / totalAttempted : 0;
 
-  // The exception list - cases the agent could NOT resolve. Razorpay's own
-  // rubric says show "an honest exception list", so surface this explicitly.
   const exceptions = await Payment.find({ status: "escalated" }).select(
     "customerName amount errorReason attempts"
   );
